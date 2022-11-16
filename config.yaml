@@ -1,0 +1,7 @@
+popup:
+  - glasses:
+    message: Are you wearing your glasses??
+    interval: 10
+    unit: seconds
+    start: '00:10'
+
