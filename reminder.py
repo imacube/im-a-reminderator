@@ -19,6 +19,9 @@ def parse_the_args():
     parser.add_argument('-m, --message', type=str, required=False, metavar='<message>',
             dest='message',
             help='Message to display')
+    parser.add_argument('--onetime', required=False, type=int, metavar='<minutes>',
+            dest='onetime',
+            help='Run a onetime reminder at the specified time in the future')
     parser.add_argument('--config', type=str, required=False, metavar='<config.yaml>',
             default='config.yaml',
             dest='config',
@@ -167,6 +170,28 @@ def LoadConfig(config_file='config.yaml'):
 def start_child_process(python, message):
     return Popen([python, 'reminder.py', '-m', str(message), '-c'])
 
+def one_time_sleeper(delay):
+    """
+    Sleep before calling
+
+    delay : how many minutes to sleep
+    """
+    target_time = datetime.now() + timedelta(minutes=delay)
+
+    while datetime.now() < target_time:
+        sleep(15)
+
+def onetime_message(message, delay):
+    """
+    Print a message onetime after waiting the set delay.
+
+    message : message to display
+    delay : how long to wait before showing the message
+    """
+    one_time_sleeper(delay)
+    n = Notifier(message, 60)
+    n.run()
+
 def main(python, config_file):
     """
     Called when run on the command line.
@@ -197,9 +222,14 @@ def main(python, config_file):
 
 if __name__ == '__main__':
     args = parse_the_args()
+    onetime = args.onetime
     config_file = args.config
     message = args.message
     python = args.python
+
+    if onetime:
+        onetime_message(message, onetime)
+        sys.exit(0)
 
     if args.child:
         n = Notifier(message, 60)
