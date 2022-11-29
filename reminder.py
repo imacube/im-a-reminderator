@@ -34,7 +34,7 @@ def parse_the_args():
             dest='python', default='python',
             help='Set the name or path of the python to call')
     args = parser.parse_args()
-    return args
+    return parser, args
 
 class Ticker(Label):
     """
@@ -221,13 +221,17 @@ def main(python, config_file):
     sys.exit()
 
 if __name__ == '__main__':
-    args = parse_the_args()
+    parser, args = parse_the_args()
     onetime = args.onetime
     config_file = args.config
     message = args.message
     python = args.python
 
     if onetime:
+        if message is None:
+            print('Need to set message with -m or --message\n')
+            parser.print_usage()
+            sys.exit(1)
         onetime_message(message, onetime)
         sys.exit(0)
 
